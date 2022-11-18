@@ -1,6 +1,6 @@
 ---
 title: "Crash Course in  Linear Models"
-author: "Jon Yearsley & Graham Hughes"
+author: "Jon Yearsley, Adam Kane & Graham Hughes"
 date: "Nov 2022"
 output:
   rmdformats::downcute:
