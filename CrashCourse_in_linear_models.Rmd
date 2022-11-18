@@ -1,0 +1,191 @@
+---
+title: "Crash Course in  Linear Models"
+author: "Jon Yearsley & Graham Hughes"
+date: "Nov 2022"
+output:
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: false
+    lightbox: false
+    gallery: true
+    highlight: tango
+---
+
+
+# Data analysis workflow
+
+![The four steps in the workflow of a data analysis project](workflow.png){width=100%}
+
+
+We're going to concentrate upon steps 3 and 4 of the workflow
+
+
+# Steps 1 & 2: Tidy and import your data
+
+The data are in a "comma-separated variable" format which is relatively easy to import using R's import functions (e.g. `read.table()` or `read.csv()`). 
+
+
+```{r}
+# Import climate data for six European cities for the period 1970-2022
+climate = read.table('climate_change.csv', 
+                     sep=',', 
+                     header=TRUE)
+```
+
+Check that the imported data look OK.
+
+Look at the first few lines of data
+```{r}
+# Look at first 6 lines of the imported data
+head(climate)
+```
+
+
+Now look at a summary of the data
+```{r}
+# A summary of the data
+summary(climate)
+```
+
+
+And the structure of the data frame, showing the data types
+```{r}
+# The structure of the data
+str(climate)
+```
+
+
+## Wrangling the data
+
+Location is a qualitative variable, so make sure this is set to be a `factor` 
+
+```{r}
+# Make sure location is a factor
+climate$location = as.factor(climate$location)
+```
+
+
+Let's also add a variable that defines two periods: 1970-1979 and 2010-2019
+```{r}
+# Define two time periods
+climate$period = NA
+climate$period[climate$year>=1970 & climate$year<1980] = "1970s"
+climate$period[climate$year>=2010 & climate$year<2020] = "2010s"
+climate$period = as.factor(climate$period)
+```
+
+
+And we'll produce a subset that's just data for Dublin
+```{r}
+dublin_climate = subset(climate, location=="Dublin")
+```
+
+
+# Step 3: Explore your data
+
+Plotting the data is a great way to explore the data
+
+```{r message=FALSE}
+library(ggplot2)
+
+# Plot mean temperature for the six locations
+ggplot(data=climate,
+       aes(x=year,
+           y=summer_dailyTmean,
+           colour=location)) +
+  geom_point() + 
+  geom_smooth(se=FALSE) + 
+  theme_bw()
+```
+
+
+Looks like temperatures are increasing in some locations, but maybe not all. 
+
+Another figure that compares the 1970s to the 2010s for Dublin
+
+```{r}
+# Plot mean temperature for the six locations
+ggplot(data=dublin_climate,
+       aes(x=period,
+           y=summer_dailyTmean,
+           fill=period)) +
+  geom_boxplot() + 
+  theme_bw()
+```
+
+
+
+
+# Step 4: Analyse the data
+
+
+
+
+```{r}
+# Fit a linear regression model for mean daily temperature in Dublin
+m_dublin = lm(summer_dailyTmean~1+year, 
+              data=dublin_climate)
+```
+
+
+## Validate the model
+
+### Residual versus fitted validation plot
+Test whether: 
+  + homogeneity of variance assumption is valid
+  + the linear relationship is appropriate
+  
+using a residual versus fitted plot  
+```{r}
+# Ptot a residual versus fitted
+plot(m_dublin, which=1)
+```  
+
+
+
+### Quantile-Quantile validation plot
+
+Test whether: 
+  + residuals follow a normal distribution
+  
+using a Q-Q plot  
+```{r}
+# Plot a residual versus fitted
+plot(m_dublin, which=2)
+```  
+
+
+
+### Leverage plot
+
+Test whether: 
+  + any one data point is having too much influence on the model fit
+  
+using a Cook's distance leverage plot
+```{r}
+# Plot a leverage plot showing Cook's distance
+plot(m_dublin, which=4)
+```  
+Cook's distance greater than 1 indicates observations that have a large effect on the fitted model. All looks good here.
+
+
+
+## Hypothesis test
+
+
+
+```{r}
+# Fit the null model
+m_null = lm(summer_dailyTmean~1, 
+              data=dublin_climate)
+```  
+
+
+
+Perform hypothesis test by comparing null model to the full model
+
+```{r}
+anova(m_null, m_dublin)
+```  
+
+P-value (=0.017) is less than 5%, so we have evidence to **reject the null-hypothesis**. Mean daily temperature in Dublin has increased from 1970 until 2022.
