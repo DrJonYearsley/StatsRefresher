@@ -3,7 +3,7 @@ title: "Crash Course in  Linear Models"
 author: "Jon Yearsley, Adam Kane & Graham Hughes"
 date: "Nov 2022"
 output:
-  rmdformats::downcute:
+  rmdformats::html_clean:
     self_contained: true
     thumbnails: false
     lightbox: false
@@ -118,9 +118,15 @@ ggplot(data=dublin_climate,
 
 # Step 4: Analyse the data
 
+We'll investigate whether:
 
+> the summer daily mean temperature for Dublin (the **response variable**) has been linearly increasing with year (the **explanatory variable**) between 1970 and 2022.
 
+For this we will use a **linear model** to describe the summer daily mean temperature for Dublin form 1970 to 2022.
 
+The model is described by the formula `response ~ 1 + explanatory`, where `response` is the name of the response variable and `explanatory` is the name of the explanatory variable.  
+
+We use the `lm()` command to fit the model:
 ```{r}
 # Fit a linear regression model for mean daily temperature in Dublin
 m_dublin = lm(summer_dailyTmean~1+year, 
@@ -128,11 +134,25 @@ m_dublin = lm(summer_dailyTmean~1+year,
 ```
 
 
+
 ## Validate the model
 
-### Residual versus fitted validation plot
+In order to use the model to draw reliable conclusions about Dublin's climate we must ensure that the model is able to generate data that is reasonably realistic. 
+
+In other words we must validate that the model's assumptions are reasonably valid.  
+
+Some important assumptions are:  
+
+  1. The residuals from the fitted model are independent of one another (independence assumption)
+  2. The variance of residuals from the fitted model is the same across all values of the explanatory variables (homogeneity of variance assumption)
+  3. The residuals from the model follow a normal distribution (normality assumption)
+  4. A linear relationship is an appropriate description 
+  5. The is little uncertainty in the values of the explanatory variable
+
+### Residual versus fitted validation plot 
 Test whether: 
-  + homogeneity of variance assumption is valid
+
+  + variance is homogeneous
   + the linear relationship is appropriate
   
 using a residual versus fitted plot  
@@ -146,6 +166,7 @@ plot(m_dublin, which=1)
 ### Quantile-Quantile validation plot
 
 Test whether: 
+
   + residuals follow a normal distribution
   
 using a Q-Q plot  
@@ -159,20 +180,42 @@ plot(m_dublin, which=2)
 ### Leverage plot
 
 Test whether: 
+
   + any one data point is having too much influence on the model fit
   
-using a Cook's distance leverage plot
+using a Cook's distance leverage plot.
+
+This isn't an assumption of the model, but it ensures that our result comes from the bulk of our data, not  one or two data points. 
+
+Here's the plot
 ```{r}
-# Plot a leverage plot showing Cook's distance
+# A leverage plot showing Cook's distance
 plot(m_dublin, which=4)
 ```  
+
 Cook's distance greater than 1 indicates observations that have a large effect on the fitted model. All looks good here.
 
 
 
 ## Hypothesis test
 
+Yay. We have a valid model, so now we can start using it to ask questions about the world (in this case Dublin's climate over the last 50 years).
 
+> First question: Has Dublin's summer temperature been linearly increasing from 1970 until 2022?
+
+We turn this question into a hypothesis:
+
+> H~1~: The summer daily mean temperature in Dublin has linearly increased from 1970 until 2022
+
+and write the corresponding null-hypothesis
+
+> H~0~: The summer daily mean temperature in Dublin has no relationship with year between 1970 and 2022
+
+
+
+We've already fitted the model that corresponds to the hypothesis (that's our model `m_dublin`).
+
+So now we fit the model for the null-hypothesis, which means removing `year` as an explanatory variable
 
 ```{r}
 # Fit the null model
@@ -182,10 +225,104 @@ m_null = lm(summer_dailyTmean~1,
 
 
 
-Perform hypothesis test by comparing null model to the full model
+We then **test the null-hypothesis** by comparing the null-model (`m_null`) to the full-model (`m_dublin`) using the `anova()` function.
 
 ```{r}
 anova(m_null, m_dublin)
 ```  
 
-P-value (=0.017) is less than 5%, so we have evidence to **reject the null-hypothesis**. Mean daily temperature in Dublin has increased from 1970 until 2022.
+P-value (=0.017) is less than 5%, so we have evidence to **reject the null-hypothesis**. Summer mean daily temperature in Dublin has increased from 1970 until 2022.
+
+
+## Estimating the Effect Size
+
+So we conclude that summer temperatures have been increasing. The next question is:
+
+> How quickly have temperatures been increasing in Dublin?
+
+This is a question asking us to **estimate** the slope of the linear relationship between temperature and year (this slope is the **effect size** that is of interest). 
+
+For this we must look at a summary of the full-model.
+
+```{r}
+summary(m_dublin)
+```
+### The estimate:
+The estimate of the slope is in the part labelled `## Coefficients:`. The slope of the linear relationship is `r signif(coef(m_dublin)['year'],2)`. 
+
+### The uncertainty in the estimate
+We also need to report the uncertainty in the estimate. A good way to do this is using the **95% confidence interval**
+
+```{r}
+confint(m_dublin)
+```
+
+The 95% confidence interval in the slope of the linear relationship is `r signif(confint(m_dublin)['year',1],2)` - `r signif(confint(m_dublin)['year',2],2)`. 
+
+# Reporting the results
+
+## In the main text
+In a report include the following pieces of information in the main text:
+  
+  + A sentence in **plain English* describing the conclusions from your analysis
+  + The statistical evidence supporting your conclusions (a minimum of test statistic, degrees of freedom and p-value)
+  +  *If the null-hypothesis has been rejected*, the estimate of the effect size and its uncertainty
+
+
+Here's an example of how to report the above analysis
+
+> Summer daily temperatures in Dublin have shown a linear increase of `r round(coef(m_dublin)['year'],3)` ^o^C year^-1^ (95% CI: `r round(confint(m_dublin)['year',1],3)` - `r round(confint(m_dublin)['year',2],3)`) from 1970 to 2022 (F~`r summary(m_dublin)$fstatistic[2]`,`r summary(m_dublin)$fstatistic[3]`~=`r signif(summary(m_dublin)$fstatistic[1],2)`, p=`r signif(anova(m_null, m_dublin)$'Pr(>F)'[2],2)`).
+
+
+## In a figure
+You could also include a figure the visualises the result. For our analysis the figure would show:
+
+  1. the estimated linear relationship
+  2. the uncertainty in the linear relationship
+  3. the original data
+  
+
+### Prepare the data to be plotted
+
+First obtain the predicted relationship and the 95% confidence interval
+```{r}
+# Model predictions and 95% confidence interval
+predictions = predict(m_dublin,
+                      interval='confidence',
+                      level=0.95)
+```
+
+Then save these predictions in the original data frame `dublin_climate`
+
+```{r}
+dublin_climate$pred = predictions[,1]         # Model prediction 
+dublin_climate$pred_lwrCI = predictions[,2]   # Lower 95% CI of prediction
+dublin_climate$pred_uprCI = predictions[,3]  # Upper 95% CI of prediction
+```
+
+
+### Plot the predictions and the original data
+
+```{r}
+ggplot(data=dublin_climate,            # Define the data to be plotted
+       aes(x=year,
+           y=pred,
+           ymin=pred_lwrCI,
+           ymax=pred_uprCI)) +
+  
+  # Specify the plot
+  geom_ribbon(alpha=0.3) +               # Make 95% CI semi-transparent
+  geom_path() +                          # Plot the predicted linear relationship 
+  geom_point(aes(y=summer_dailyTmean)) + # Plot the original data
+
+  # Specify the styling of the plot
+  labs(x='Year',
+       y='Daily Mean Summer Temperature (deg C)') +
+  theme_bw()
+```
+
+
+### Figure caption
+The figure needs a caption, which could be:
+
+> Figure 1: The linear increase in daily summer temperature for Dublin between 1970 and 2022 (F~`r summary(m_dublin)$fstatistic[2]`,`r summary(m_dublin)$fstatistic[3]`~=`r signif(summary(m_dublin)$fstatistic[1],2)`, p=`r signif(anova(m_null, m_dublin)$'Pr(>F)'[2],2)`). Shown are the data (solid points), the predicted relationship (solid line) and its 95% confidence interval (shaded region).
