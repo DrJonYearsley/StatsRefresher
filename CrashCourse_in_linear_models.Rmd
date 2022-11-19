@@ -201,7 +201,7 @@ Cook's distance greater than 1 indicates observations that have a large effect o
 
 Yay. We have a valid model, so now we can start using it to ask questions about the world (in this case Dublin's climate over the last 50 years).
 
-> First question: Has Dublin's summer temperature been linearly increasing from 1970 until 2022?
+> First question: Has Dublin's summer temperature been increasing from 1970 until 2022?
 
 We turn this question into a hypothesis:
 
@@ -264,7 +264,7 @@ The 95% confidence interval in the slope of the linear relationship is `r signif
 ## In the main text
 In a report include the following pieces of information in the main text:
   
-  + A sentence in **plain English* describing the conclusions from your analysis
+  + A sentence in **plain English** describing the conclusions from your analysis
   + The statistical evidence supporting your conclusions (a minimum of test statistic, degrees of freedom and p-value)
   +  *If the null-hypothesis has been rejected*, the estimate of the effect size and its uncertainty
 
