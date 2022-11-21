@@ -9,11 +9,11 @@ The data are from v26.0e of the gridded data at 0.25 degrees spatial resolution.
 
 The variables are:
 
-year : year of observations (1980 - 2022)
-location : the European city (Dublin, Madrid, Oslo, Rome, Berlin, London)
-longitude : the longitude of a location
-latitude : the latitude of a location
-summer_dailyTmean : the mean daily temperature, averaged across all days in June-Aug
-winter_dailyTmean : the mean daily temperature, averaged across all days in Dec - Feb
-summer_dailyRainfall : the total daily rainfall (mm), averaged across all days in June-Aug
-winter_dailyRainfall : the total daily rainfall (mm), averaged across all days in Dec-Feb
++ year : year of observations (1980 - 2022)
++ location : the European city (Dublin, Madrid, Oslo, Rome, Berlin, London)
++ longitude : the longitude of a location
++ latitude : the latitude of a location
++ summer_dailyTmean : the mean daily temperature, averaged across all days in June-Aug
++ winter_dailyTmean : the mean daily temperature, averaged across all days in Dec - Feb
++ summer_dailyRainfall : the total daily rainfall (mm), averaged across all days in June-Aug
++ winter_dailyRainfall : the total daily rainfall (mm), averaged across all days in Dec-Feb
