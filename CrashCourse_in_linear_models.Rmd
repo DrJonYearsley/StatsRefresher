@@ -17,7 +17,7 @@ output:
 ![The four steps in the workflow of a data analysis project](workflow.png){width=100%}
 
 
-We're going to concentrate upon steps 3 and 4 of the workflow
+In this crash course we're going to concentrate upon steps 3 and 4 of the workflow
 
 
 # Steps 1 & 2: Tidy and import your data
@@ -326,3 +326,43 @@ ggplot(data=dublin_climate,            # Define the data to be plotted
 The figure needs a caption, which could be:
 
 > Figure 1: The linear increase in daily summer temperature for Dublin between 1970 and 2022 (F~`r summary(m_dublin)$fstatistic[2]`,`r summary(m_dublin)$fstatistic[3]`~=`r signif(summary(m_dublin)$fstatistic[1],2)`, p=`r signif(anova(m_null, m_dublin)$'Pr(>F)'[2],2)`). Shown are the data (solid points), the predicted relationship (solid line) and its 95% confidence interval (shaded region).
+
+
+# Practise Tasks
+
+Analyse climate data for a city other than Dublin and quantify the temperature change per year
+
+
+### First part: Prepare the data
+
+1. Create a new R script, import the climate_change.csv data
+2. Subset your imported data so it contains data from just one European city (not Dublin)
+3. Produce a figure that shows the data for mean daily temperature between 1970 and 2022 (you can pick either winter or summer). 
+
+### Second part: Fit a linear model
+
+4. Use the lm() function to fit a straight-line relationship (i.e. a linear regression) between the variables year (x-axis) and the temperature you visualised in task 3 (y-axis) 
+5. Produce validation plots for your fitted model and interpret the plots
+
+### Third part: Interpret the fitted model
+
+6. Estimate the rate of change of temperature (degrees C per year) for your chosen city between 1970 and 2022.
+7. Write up your result in a format that is appropriate for a professional report. You can include a figure to accompany your result.
+
+
+
+
+# Summary and Key Take-Home Points
+
++ There are four steps to data analysis workflow
+
+     1. Organise your data
+     2. Import and wrangle your data into a workable format
+     3. Explore your data using graphs and summary statistics
+     4. Formally analyse your data, focussing on the hypothesis
+     
++ General linear models are a first choice for analysing a quantitative response variable
++ General linear models can have quantitative and qualitative explanatory variables (this corresponds to the classical analyses of regression and ANOVA, respectively)
++ Before an analysis can be used to draw conclusions the model must be validated
++ There is an accepted professional format for reporting the conclusions from an analysis
+
